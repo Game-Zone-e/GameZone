@@ -22,8 +22,8 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
+    overflow: hidden;
   }
-
   #game-container {
     position: relative;
     width: 90%;
@@ -33,30 +33,26 @@
     border: 2px solid #000;
     background: linear-gradient(#a2d5a2, #70c470);
     overflow: hidden;
-    touch-action: none;
     border-radius: 12px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    touch-action: none;
   }
-
   canvas {
     width: 100%;
     height: 100%;
     background: transparent;
   }
-
   #info-box {
     position: absolute;
     top: 10px;
     left: 10px;
-    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, 0.7);
     padding: 6px 12px;
     border-radius: 8px;
     color: white;
     font-size: 14px;
   }
-
   #username { font-weight: bold; }
-
   #game-over {
     position: absolute;
     top: 50%;
@@ -71,9 +67,7 @@
     max-width: 320px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.6);
   }
-
   .hidden { display: none; }
-
   button {
     padding: 8px 16px;
     margin: 8px;
@@ -84,7 +78,6 @@
     background-color: #4caf50;
     color: white;
   }
-
   #banner-ad {
     width: 100%;
     height: 90px;
@@ -93,39 +86,9 @@
     border: 2px solid #ddd;
     margin-top: 10px;
   }
-
-  /* ===== TOUCH BUTTONS ===== */
-  .touch-btn {
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    font-size: 24px;
-    user-select: none;
-    touch-action: none;
-    z-index: 10;
-  }
-  .touch-btn:active {
-    background: rgba(255,255,255,1);
-  }
-  #btn-up { bottom: 130px; left: 70px; }
-  #btn-down { bottom: 10px; left: 70px; }
-  #btn-left { bottom: 70px; left: 10px; }
-  #btn-right { bottom: 70px; left: 130px; }
-
-  @media(min-width:769px){
-    .touch-btn { display: none; }
-  }
-
 </style>
 </head>
 <body>
-
 <div id="game-container">
   <canvas id="gameCanvas"></canvas>
 
@@ -145,13 +108,6 @@
     <button id="continue-btn">Continue (Watch Ad)</button>
     <button id="back-btn" style="background-color:#2196f3;">Back</button>
   </div>
-
-  <!-- TOUCH BUTTONS FOR SMALL DEVICES -->
-  <div id="btn-up" class="touch-btn">&#9650;</div>
-  <div id="btn-down" class="touch-btn">&#9660;</div>
-  <div id="btn-left" class="touch-btn">&#9668;</div>
-  <div id="btn-right" class="touch-btn">&#9658;</div>
-
 </div>
 
 <script>
@@ -200,16 +156,13 @@ restartBtn.addEventListener('click', resetGame);
 continueBtn.addEventListener('click', () => {
   GameMonetize.showRewardedAd({
     callback: function(success) {
-      if (success) {
-        continueGame();
-      } else {
-        alert("You must watch the full ad to continue!");
-      }
+      if (success) continueGame();
+      else alert("You must watch the full ad to continue!");
     }
   });
 });
 
-// BACK BUTTON
+// Back button
 backBtn.addEventListener('click', () => {
   window.location.href = "game.html";
 });
@@ -249,17 +202,10 @@ document.addEventListener('keyup', e => keys[e.key] = false);
 
 function moveAnimal() {
   let targetDx=0, targetDy=0;
-
   if(keys['ArrowUp']||keys['w']) targetDy=-animal.speed;
   if(keys['ArrowDown']||keys['s']) targetDy=animal.speed;
   if(keys['ArrowLeft']||keys['a']) targetDx=-animal.speed;
   if(keys['ArrowRight']||keys['d']) targetDx=animal.speed;
-
-  // TOUCH BUTTONS
-  if(btnUpPressed) targetDy=-animal.speed;
-  if(btnDownPressed) targetDy=animal.speed;
-  if(btnLeftPressed) targetDx=-animal.speed;
-  if(btnRightPressed) targetDx=animal.speed;
 
   animal.dx += (targetDx - animal.dx)*0.2;
   animal.dy += (targetDy - animal.dy)*0.2;
@@ -271,21 +217,18 @@ function moveAnimal() {
   animal.y=Math.max(0,Math.min(canvas.height-animal.height,animal.y));
 }
 
-// Touch buttons state
-let btnUpPressed=false, btnDownPressed=false, btnLeftPressed=false, btnRightPressed=false;
-const btnUp = document.getElementById('btn-up');
-const btnDown = document.getElementById('btn-down');
-const btnLeft = document.getElementById('btn-left');
-const btnRight = document.getElementById('btn-right');
-
-function addTouchEvents(btn, stateVar){
-  btn.addEventListener('touchstart', e=>{ e.preventDefault(); window[stateVar]=true; });
-  btn.addEventListener('touchend', e=>{ e.preventDefault(); window[stateVar]=false; });
+// ⭐ Touch controls for small devices
+canvas.addEventListener('touchstart', touchMove);
+canvas.addEventListener('touchmove', touchMove, {passive:false});
+function touchMove(e){
+  e.preventDefault();
+  const t = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  let x = t.clientX - rect.left - animal.width/2;
+  let y = t.clientY - rect.top - animal.height/2;
+  animal.x = Math.max(0, Math.min(canvas.width - animal.width, x));
+  animal.y = Math.max(0, Math.min(canvas.height - animal.height, y));
 }
-addTouchEvents(btnUp, 'btnUpPressed');
-addTouchEvents(btnDown, 'btnDownPressed');
-addTouchEvents(btnLeft, 'btnLeftPressed');
-addTouchEvents(btnRight, 'btnRightPressed');
 
 // Update objects
 function updateObjects(){
@@ -347,25 +290,22 @@ function triggerGameOver(){
 
 // Restart
 function resetGame(){
-  animal.x=400; animal.y=250;
-  animal.dx=0; animal.dy=0;
+  animal.x=400; animal.y=250; animal.dx=0; animal.dy=0;
   score=0;
-  fishArray=[];
-  obstacleArray=[];
-  gameOver=false;
-  speedMultiplier=1;
+  fishArray=[]; obstacleArray=[];
+  gameOver=false; speedMultiplier=1;
   gameOverDiv.classList.add('hidden');
   update();
 }
 
-// Continue (after rewarded ad)
+// Continue
 function continueGame(){
   gameOver=false;
   gameOverDiv.classList.add('hidden');
   update();
 }
 
-// Game loop
+// Loop
 function update(){
   if(gameOver) return;
   moveAnimal();
@@ -379,6 +319,8 @@ update();
 </script>
 </body>
 </html>
+
+
 
 
 
