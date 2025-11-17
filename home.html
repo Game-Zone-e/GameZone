@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameZone - Play & Win Rewards</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+* { box-sizing: border-box; margin:0; padding:0; font-family:'Inter',sans-serif; }
+
+/* Make footer stick at bottom */
+html, body {
+    height: 100%;
+    background:#FCE4EC;
+}
+body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: url("img.png") no-repeat center center/cover;
+}
+/* Main content wrapper so footer stays bottom */
+.main-content {
+    flex: 1;
+}
+
+/* ===== NAVBAR ===== */
+nav {
+    background:#FFB6B9; padding:15px 30px;
+    display:flex; justify-content:space-between; align-items:center;
+    position:relative; z-index:10;
+}
+nav .logo { font-size:24px; font-weight:700; color:#fff; }
+nav ul { list-style:none; display:flex; gap:20px; }
+nav ul li a {
+    text-decoration:none; color:#fff; font-weight:500; transition:color 0.3s;
+}
+nav ul li a:hover { color:#FFDFD3; }
+
+/* Hamburger */
+.menu-toggle {
+    display:none; flex-direction:column; cursor:pointer;
+}
+.menu-toggle span {
+    background:#fff; height:3px; width:25px; margin:4px 0;
+    border-radius:2px; transition:all 0.3s ease;
+}
+
+/* Overlay Menu */
+.overlay {
+    display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.5); justify-content:center; align-items:center;
+    z-index:9;
+}
+.overlay.active { display:flex; }
+
+.overlay .nav-box {
+    background:#fff; padding:30px 40px; border-radius:20px;
+    text-align:center; width:80%; max-width:320px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    animation: fadeIn 0.3s ease;
+}
+.overlay .nav-box ul { list-style:none; display:flex; flex-direction:column; gap:15px; }
+.overlay .nav-box ul li a {
+    color:#FF6B6B; font-weight:600; font-size:18px; text-decoration:none;
+}
+.overlay .nav-box ul li a:hover { color:#FF8C94; }
+
+@keyframes fadeIn {
+    from { opacity:0; transform:scale(0.9); }
+    to { opacity:1; transform:scale(1); }
+}
+
+/* ===== HEADER ===== */
+header { text-align:center; padding:40px 20px; margin-top: 200px; }
+header h1 { font-size:36px; color:#FF6B6B; margin-bottom:10px; }
+header p.tagline { font-size:18px; color:#fcf5f5; margin-bottom:40px; }
+
+/* ===== FOOTER ===== */
+footer {
+    padding: 40px 20px;
+    text-align:center;
+    background:#ffb6b900;
+    color:white;
+    margin-top:auto;
+}
+.footer-bottom p {
+    font-size:14px;
+    opacity:0.85;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+    .menu-toggle { display:flex; }
+    nav ul { display:none; }
+
+    .game-box {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="main-content">
+
+<!-- NAVBAR -->
+<nav>
+    <div class="logo">GameZone</div>
+
+    <div class="menu-toggle" onclick="toggleMenu(true)">
+        <span></span><span></span><span></span>
+    </div>
+
+    <ul>
+<li><a href="home.html">Home</a></li>
+        <li><a href="game.html">Games</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+       
+    </ul>
+</nav>
+
+<!-- MOBILE OVERLAY MENU -->
+<div class="overlay" id="overlay" onclick="closeMenu(event)">
+    <div class="nav-box">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+        <li><a href="game.html">Games</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        </ul>
+    </div>
+</div>
+
+<!-- HEADER -->
+<header>
+    <h1>Play Games, Win Rewards!</h1>
+    <p class="tagline">Have fun, challenge yourself, and earn rewards with every game!</p>
+</header>
+
+</div> <!-- end main-content -->
+
+<!-- FOOTER (Stays at bottom always) -->
+<footer>
+    <div class="footer-bottom">
+        <p>© 2025 ASWCode. All rights reserved.</p>
+    </div>
+</footer>
+
+<script>
+function toggleMenu(open) {
+    document.getElementById('overlay').classList.toggle('active', open);
+}
+function closeMenu(event) {
+    const overlay = document.getElementById('overlay');
+    const navBox = overlay.querySelector('.nav-box');
+    if (!navBox.contains(event.target)) {
+        overlay.classList.remove('active');
+    }
+}
+</script>
+
+</body>
+</html>

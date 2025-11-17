@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Us - GameZone</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+* { box-sizing:border-box; margin:0; padding:0; font-family:'Inter',sans-serif; }
+body { background:#FFF3F3; color:#333; line-height:1.6; }
+
+/* ===== NAVBAR ===== */
+nav {
+    background:#FFB6B9; padding:15px 30px;
+    display:flex; justify-content:space-between; align-items:center;
+    position:relative; z-index:10;
+}
+nav .logo { font-size:24px; font-weight:700; color:#fff; }
+nav ul { list-style:none; display:flex; gap:20px; }
+nav ul li a {
+    text-decoration:none; color:#fff; font-weight:500;
+    transition:color 0.3s;
+}
+nav ul li a:hover { color:#FFDFD3; }
+
+/* ===== HAMBURGER ===== */
+.menu-toggle {
+    display:none; flex-direction:column; cursor:pointer;
+}
+.menu-toggle span {
+    background:#fff; height:3px; width:25px; margin:4px 0;
+    border-radius:2px; transition:all 0.3s ease;
+}
+
+/* ===== OVERLAY MENU ===== */
+.overlay {
+    display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.5);
+    justify-content:center; align-items:center;
+    z-index:9;
+}
+.overlay.active { display:flex; }
+
+.overlay .nav-box {
+    background:#fff; padding:30px 40px; border-radius:20px;
+    text-align:center; width:80%; max-width:320px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    animation: fadeIn 0.3s ease;
+}
+.overlay .nav-box ul {
+    list-style:none; display:flex; flex-direction:column; gap:15px;
+}
+.overlay .nav-box ul li a {
+    color:#FF6B6B; font-weight:600; font-size:18px; text-decoration:none;
+}
+.overlay .nav-box ul li a:hover { color:#FF8C94; }
+
+@keyframes fadeIn {
+  from { opacity:0; transform:scale(0.9); }
+  to { opacity:1; transform:scale(1); }
+}
+
+/* ===== HEADER ===== */
+header {
+    text-align:center; padding:50px 20px;
+}
+header h1 {
+    color:#FF6B6B; font-size:34px; margin-bottom:10px;
+}
+
+/* ===== CONTENT BOX ===== */
+.content {
+    background:#fff; margin:40px auto;
+    max-width:900px; border-radius:20px; padding:30px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
+}
+.content p { margin-bottom:15px; }
+
+/* ===== AD BANNER STYLE ===== */
+.ad-banner {
+    background:#FFF9C4; border:2px dashed #FF6B6B;
+    padding:15px; text-align:center;
+    border-radius:10px; font-weight:600;
+    margin:30px 0;
+}
+
+/* ===== FOOTER ===== */
+footer {
+    text-align:center; padding:25px;
+    color:#555;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+    nav ul { display:none; }
+    .menu-toggle { display:flex; }
+    header h1 { font-size:26px; }
+    .content { margin:20px; padding:20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav>
+    <div class="logo">GameZone</div>
+
+    <div class="menu-toggle" onclick="toggleMenu(true)">
+        <span></span><span></span><span></span>
+    </div>
+
+    <ul>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="game.html">Games</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+       
+    </ul>
+</nav>
+
+<!-- ===== MOBILE MENU OVERLAY ===== -->
+<div class="overlay" id="overlay" onclick="closeMenu(event)">
+    <div class="nav-box">
+        <ul>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="game.html">Games</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+       
+        </ul>
+    </div>
+</div>
+
+<!-- ===== HEADER ===== -->
+<header>
+  <h1>About GameZone</h1>
+  <p>Your trusted place to play, relax, and enjoy fun digital experiences.</p>
+</header>
+
+<!-- ===== CONTENT ===== -->
+<div class="content">
+
+ <!-- <div class="ad-banner">[Top Ad Banner - 728x90 / 320x100]</div> -->
+
+  <p>
+    GameZone was created with a simple vision — to make online gaming enjoyable, rewarding, and accessible to everyone. Our platform brings together a collection of lightweight, fun, and engaging digital experiences designed for players of all ages.
+  </p>
+
+  <p>
+    We focus on providing a smooth and enjoyable environment where users can relax, challenge themselves, and explore new digital entertainment. Every feature on GameZone is built with user experience, fairness, and simplicity in mind.
+  </p>
+
+ <!-- <div class="ad-banner">[Top Ad Banner - 728x90 / 320x100]</div> -->
+
+
+  <p>
+    Our mission is to create a community-driven space where fun and creativity can thrive. We continuously improve the platform, introduce new ideas, and listen closely to our users to ensure GameZone remains safe, enjoyable, and easy to use.
+  </p>
+
+  <p>
+    Whether you're here to unwind, explore, or compete, GameZone is committed to offering a friendly and rewarding online experience.
+  </p>
+
+ <!-- <div class="ad-banner">[Top Ad Banner - 728x90 / 320x100]</div> -->
+
+</div>
+
+<footer>
+    &copy; 2025 GameZone. All Rights Reserved.
+</footer>
+
+<!-- ===== JS MENU ===== -->
+<script>
+function toggleMenu(open) {
+    document.getElementById('overlay').classList.toggle('active', open);
+}
+
+function closeMenu(event) {
+    const overlay = document.getElementById('overlay');
+    const navBox = overlay.querySelector('.nav-box');
+    if (!navBox.contains(event.target)) {
+        overlay.classList.remove('active');
+    }
+}
+</script>
+
+</body>
+</html>

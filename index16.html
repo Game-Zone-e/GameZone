@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animal Game - Touch Controls</title>
+
+<!-- ⭐ GAME MONETIZE AD SDK ⭐ -->
+<script src="https://api.gamemonetize.com/sdk.js"></script>
+<script>
+  const GM_GAME_ID = "YOUR_GAME_ID_HERE"; // ← CHANGE THIS ONLY
+  GameMonetize.init(GM_GAME_ID);
+</script>
+
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: #c2f0c2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  #game-container {
+    position: relative;
+    width: 90%;
+    max-width: 800px;
+    height: 90vh;
+    max-height: 500px;
+    border: 2px solid #000;
+    background: linear-gradient(#a2d5a2, #70c470);
+    overflow: hidden;
+    touch-action: none;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+  canvas {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+  }
+  #info-box {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgb(0, 0, 0);
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+  }
+  #username { font-weight: bold; }
+  #game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgb(0, 0, 0);
+    color: white;
+    text-align: center;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 320px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+  }
+  .hidden { display: none; }
+  button {
+    padding: 8px 16px;
+    margin: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 6px;
+    border: none;
+    background-color: #4caf50;
+    color: white;
+  }
+  #banner-ad {
+    width: 100%;
+    height: 90px;
+    background: white;
+    border-radius: 6px;
+    border: 2px solid #ddd;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+<div id="game-container">
+  <canvas id="gameCanvas"></canvas>
+
+  <div id="info-box">
+    <span id="username">Player</span><br>
+    <span id="score">Score: 0</span>
+  </div>
+
+  <!-- GAME OVER POPUP -->
+  <div id="game-over" class="hidden">
+    <h2>Game Over</h2>
+    <p id="go-username"></p>
+    <p id="go-score"></p>
+    <p id="go-datetime"></p>
+
+    <!-- ⭐ GAME MONETIZE BANNER AD ⭐
+    <div id="banner-ad">
+      <div id="gm-banner"></div>
+      <script>
+        GameMonetize.showBanner("gm-banner");
+      </script>
+    </div>  -->
+
+    <button id="restart-btn">Restart</button>
+    <button id="continue-btn">Continue (Watch Ad)</button>
+
+    <!-- ⭐ BACK BUTTON ADDED ⭐ -->
+    <button id="back-btn" style="background-color:#2196f3;">Back</button>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width = canvas.parentElement.clientWidth;
+  canvas.height = canvas.parentElement.clientHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// Username
+let username = localStorage.getItem('username') || "Player";
+document.getElementById('username').innerText = username;
+
+// Images
+const animalImg = new Image(); animalImg.src = 's.png';
+const fishImg = new Image(); fishImg.src = 'img1.png';
+const obstacleImg = new Image(); obstacleImg.src = 'stone.png';
+
+// Player
+let animal = { x: 400, y: 250, width: 80, height: 80, speed: 4, dx:0, dy:0 };
+
+// Objects
+let fishArray = [];
+let obstacleArray = [];
+let score = 0;
+let gameOver = false;
+
+// DOM elements
+const gameOverDiv = document.getElementById('game-over');
+const restartBtn = document.getElementById('restart-btn');
+const continueBtn = document.getElementById('continue-btn');
+const backBtn = document.getElementById('back-btn'); // ⭐ BACK BTN
+const scoreDisplay = document.getElementById('score');
+const goUsername = document.getElementById('go-username');
+const goScore = document.getElementById('go-score');
+const goDatetime = document.getElementById('go-datetime');
+
+// Restart button
+restartBtn.addEventListener('click', resetGame);
+
+// Continue button — ⭐ REAL REWARDED AD ⭐
+continueBtn.addEventListener('click', () => {
+  GameMonetize.showRewardedAd({
+    callback: function(success) {
+      if (success) {
+        continueGame();
+      } else {
+        alert("You must watch the full ad to continue!");
+      }
+    }
+  });
+});
+
+// ⭐ BACK BUTTON ACTION ⭐
+backBtn.addEventListener('click', () => {
+  window.location.href = "game.html"; // ← CHANGE THIS if needed
+});
+
+// Difficulty
+let speedMultiplier = 1;
+setInterval(() => speedMultiplier += 0.2, 15000);
+
+// Spawn objects
+function spawnFish() {
+  fishArray.push({
+    x: Math.random() * (canvas.width - 40),
+    y: -40, width: 40, height: 40,
+    dy: (Math.random()*2 + 1) * speedMultiplier,
+    dxAmplitude: Math.random()*20,
+    dxSpeed: Math.random()*0.05 + 0.02,
+    angle: 0
+  });
+}
+
+function spawnObstacle() {
+  obstacleArray.push({
+    x: Math.random() * (canvas.width - 50),
+    y: -50, width: 50, height: 50,
+    dy: (Math.random()*2 + 1) * speedMultiplier,
+    dxAmplitude: Math.random()*10,
+    dxSpeed: Math.random()*0.03 + 0.01,
+    angle: 0
+  });
+}
+
+setInterval(spawnFish, 1000);
+setInterval(spawnObstacle, 2000);
+
+// Movement
+let keys = {};
+document.addEventListener('keydown', e => keys[e.key] = true);
+document.addEventListener('keyup', e => keys[e.key] = false);
+
+function moveAnimal() {
+  let targetDx=0, targetDy=0;
+
+  if(keys['ArrowUp']||keys['w']) targetDy=-animal.speed;
+  if(keys['ArrowDown']||keys['s']) targetDy=animal.speed;
+  if(keys['ArrowLeft']||keys['a']) targetDx=-animal.speed;
+  if(keys['ArrowRight']||keys['d']) targetDx=animal.speed;
+
+  animal.dx += (targetDx - animal.dx)*0.2;
+  animal.dy += (targetDy - animal.dy)*0.2;
+
+  animal.x += animal.dx;
+  animal.y += animal.dy;
+
+  animal.x=Math.max(0,Math.min(canvas.width-animal.width,animal.x));
+  animal.y=Math.max(0,Math.min(canvas.height-animal.height,animal.y));
+}
+
+// Touch controls
+let isTouching=false, offset={x:0,y:0};
+canvas.addEventListener('touchstart', (e)=>{
+  const t=e.touches[0];
+  if(t.clientX>=animal.x && t.clientX<=animal.x+animal.width &&
+     t.clientY>=animal.y && t.clientY<=animal.y+animal.height){
+    isTouching=true;
+    offset.x=t.clientX-animal.x;
+    offset.y=t.clientY-animal.y;
+  }
+});
+canvas.addEventListener('touchmove',(e)=>{
+  e.preventDefault();
+  if(isTouching){
+    const t=e.touches[0];
+    animal.x=t.clientX-offset.x;
+    animal.y=t.clientY-offset.y;
+  }
+},{passive:false});
+canvas.addEventListener('touchend',()=>isTouching=false);
+
+// Update objects
+function updateObjects(){
+  fishArray.forEach(f=>{
+    f.y+=f.dy;
+    f.angle+=f.dxSpeed;
+    f.x+=Math.sin(f.angle)*f.dxAmplitude*0.05;
+  });
+
+  obstacleArray.forEach(o=>{
+    o.y+=o.dy;
+    o.angle+=o.dxSpeed;
+    o.x+=Math.sin(o.angle)*o.dxAmplitude*0.05;
+  });
+
+  fishArray=fishArray.filter(f=>f.y<canvas.height);
+  obstacleArray=obstacleArray.filter(o=>o.y<canvas.height);
+}
+
+// Collision
+function checkCollisions(){
+  const pad=10;
+
+  for(let i=fishArray.length-1;i>=0;i--){
+    let f=fishArray[i];
+    if(animal.x < f.x+f.width-pad &&
+       animal.x+animal.width-pad > f.x &&
+       animal.y < f.y+f.height-pad &&
+       animal.y+animal.height-pad > f.y){
+      score++;
+      fishArray.splice(i,1);
+    }
+  }
+
+  for(let i=obstacleArray.length-1;i>=0;i--){
+    let o=obstacleArray[i];
+    if(animal.x < o.x+o.width-pad &&
+       animal.x+animal.width-pad > o.x &&
+       animal.y < o.y+o.height-pad &&
+       animal.y+animal.height-pad > o.y){
+      triggerGameOver();
+    }
+  }
+
+  scoreDisplay.innerText="Score: "+score;
+}
+
+// Draw
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(animalImg,animal.x,animal.y,animal.width,animal.height);
+  fishArray.forEach(f=>ctx.drawImage(fishImg,f.x,f.y,f.width,f.height));
+  obstacleArray.forEach(o=>ctx.drawImage(obstacleImg,o.x,o.y,o.width,o.height));
+}
+
+// Game Over
+function triggerGameOver(){
+  gameOver=true;
+  goUsername.innerText="Username: "+username;
+  goScore.innerText="Score: "+score;
+  goDatetime.innerText="Time: "+new Date().toLocaleString();
+
+  gameOverDiv.classList.remove("hidden");
+}
+
+// Restart
+function resetGame(){
+  animal.x=400; animal.y=250;
+  animal.dx=0; animal.dy=0;
+  score=0;
+  fishArray=[];
+  obstacleArray=[];
+  gameOver=false;
+  speedMultiplier=1;
+  gameOverDiv.classList.add('hidden');
+  update();
+}
+
+// Continue (after rewarded ad)
+function continueGame(){
+  gameOver=false;
+  gameOverDiv.classList.add('hidden');
+  update();
+}
+
+// Loop
+function update(){
+  if(gameOver) return;
+  moveAnimal();
+  updateObjects();
+  checkCollisions();
+  draw();
+  requestAnimationFrame(update);
+}
+
+update();
+</script>
+</body>
+</html>
